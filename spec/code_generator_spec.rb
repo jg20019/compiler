@@ -67,5 +67,32 @@ describe CodeGenerator do
       generator.generate(tree) 
       expect(iostream.lines).to eql(expected_output) 
     end 
+
+    it "generates code for expressions like '5+3-1'" do 
+      tree = ExprNode.new(
+        TermNode.new(5), 
+        [ AddOpNode.new(:plus), 
+          TermNode.new(3), 
+          AddOpNode.new(:minus), 
+          TermNode.new(1)  
+        ] 
+      )
+
+      expected_output = [
+        "\tMOVE #5, D0", 
+        "\tMOVE D0, D1", 
+        "\tMOVE #3, D0", 
+        "\tADD D1, D0", 
+        "\tMOVE D0, D1", 
+        "\tMOVE #1, D0", 
+        "\tSUB D1, D0", 
+        "\tNEG D0" 
+      ] 
+
+      iostream = MockIOStream.new
+      generator = CodeGenerator.new(iostream)
+      generator.generate(tree)
+      expect(iostream.lines).to eql(expected_output) 
+    end 
   end
 end

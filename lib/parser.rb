@@ -28,6 +28,12 @@ class Parser
     if atEnd? 
       exprNode
     else
+      parse_addop_terms exprNode
+    end
+  end
+
+  def parse_addop_terms(exprNode) 
+    while !atEnd? && addOp?(peek) 
       case peek.type
       when :plus 
         addOp = AddOpNode.new(:plus)
@@ -40,8 +46,8 @@ class Parser
       else 
         Error.expected('Addop') 
       end 
-      exprNode
     end
+    exprNode
   end
 
   def parse_term

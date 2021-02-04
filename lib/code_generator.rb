@@ -9,8 +9,8 @@ class CodeGenerator
     case tree
     when ExprNode 
       generate(tree.term)
-      unless tree.addopTerms.empty? 
-        addop, term = tree.addopTerms
+      until tree.addopTerms.empty? 
+        addop, term = tree.addopTerms.shift(2)
         emitLn "MOVE D0, D1" 
         generateAddOp addop, term
       end
