@@ -65,6 +65,21 @@ describe Lexer do
     end
   end 
 
+  describe "#getToken" do
+    it "can recogize a plus sign" do
+      lexer = Lexer.new "+" 
+      tokens = lexer.tokenize
+      expect(tokens.length).to eql(1) 
+      expect(tokens[0].type).to eql(:plus)  
+    end
+
+    it "can recognize a minus sign" do
+      lexer = Lexer.new "-"
+      tokens = lexer.tokenize
+      expect(tokens.length).to eql(1)
+      expect(tokens[0].type).to eql(:minus) 
+    end
+  end
   describe "#tokenize" do 
     it "can tokenize a single integer" do 
       lexer = Lexer.new "1" 

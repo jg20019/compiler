@@ -23,6 +23,12 @@ class Lexer
   def get_token
     if digit?(look) 
       getNum
+    elsif look == '+' 
+      match('+') 
+      Token.new(:plus, '+') 
+    elsif look == '-'
+      match('-') 
+      Token.new(:minus, '-')
     else
       Error.abort("Unexpected character '#{look}'") 
     end
