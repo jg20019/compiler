@@ -18,5 +18,5 @@ class Compiler
   end
 end
 
-compiler = Compiler.new("1") 
+compiler = Compiler.new("1+2") 
 compiler.compile

@@ -15,6 +15,6 @@ class Emitter
   end
 
   def to_s 
-    @lines.join('\n') 
+    @lines.join("\n") 
   end
 end
