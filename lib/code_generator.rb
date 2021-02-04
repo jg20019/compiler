@@ -8,10 +8,13 @@ class CodeGenerator
   def generate(tree) 
     case tree
     when ExprNode 
-      generate(tree.op1)
-      emitLn "MOVE D0, D1" 
-      generateAddOp tree.addop, tree.op2
-    when IntegerNode 
+      generate(tree.term)
+      unless tree.addopTerms.empty? 
+        addop, term = tree.addopTerms
+        emitLn "MOVE D0, D1" 
+        generateAddOp addop, term
+      end
+    when TermNode 
       emitLn "MOVE \##{tree.value}, D0"
     else
       Error.abort "Unexpected node '#{tree.class}'" 
@@ -37,6 +40,7 @@ class CodeGenerator
   def generateSubtract(operand)
     generate(operand)
     emitLn 'SUB D1, D0'
+    emitLn 'NEG D0'
   end
 
   private 

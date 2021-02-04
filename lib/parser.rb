@@ -24,28 +24,28 @@ class Parser
   end
 
   def parse_expr
-    op1 = parse_term
+    exprNode = ExprNode.new(parse_term, [])
     if atEnd? 
-      op1
+      exprNode
     else
       case peek.type
       when :plus 
         addOp = AddOpNode.new(:plus)
         consume(:plus) 
-        op2 = parse_term
+        exprNode.addopTerms << addOp << parse_term
       when :minus 
         addOp = AddOpNode.new(:minus)
         consume(:minus) 
-        op2 = parse_term
+        exprNode.addopTerms << addOp << parse_term
       else 
         Error.expected('Addop') 
       end 
-      ExprNode.new(op1, addOp, op2) 
+      exprNode
     end
   end
 
   def parse_term
-    IntegerNode.new(consume(:integer).value) 
+    TermNode.new(consume(:integer).value) 
   end
 
   def consume(expected_type) 
