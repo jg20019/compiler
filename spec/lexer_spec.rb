@@ -64,4 +64,14 @@ describe Lexer do
       expect { lexer.getNum }.to raise_error(RuntimeError) 
     end
   end 
+
+  describe "#tokenize" do 
+    it "can tokenize a single integer" do 
+      lexer = Lexer.new "1" 
+      tokens = lexer.tokenize 
+      expect(tokens.length).to eql(1) 
+      expect(tokens[0].type).to eql(:number)
+      expect(tokens[0].value).to eql(1)
+    end
+  end 
 end

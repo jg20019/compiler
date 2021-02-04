@@ -8,6 +8,26 @@ class Lexer
     @source = source
   end
 
+  def tokenize
+    tokens = []
+    until atEnd? 
+      tokens << get_token
+    end
+    tokens 
+  end
+
+  def atEnd? 
+    @index >= @source.length
+  end
+
+  def get_token
+    if digit?(look) 
+      getNum
+    else
+      Error.abort("Unexpected character '#{look}'") 
+    end
+  end
+
   def look
     @source[@index]
   end
