@@ -63,7 +63,7 @@ class Lexer
 
   def getNum
     Error.expected('Integer') unless digit?(look) 
-    token = Token.new(:number, look.to_i) 
+    token = Token.new(:integer, look.to_i) 
     getChar
     token
   end

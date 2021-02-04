@@ -49,7 +49,7 @@ describe Lexer do
     it "returns a number token if the next character is a letter" do
       lexer = Lexer.new "1+1" 
       token = lexer.getNum
-      expect(token.type).to eql(:number)
+      expect(token.type).to eql(:integer)
       expect(token.value).to eql(1)
     end 
 
@@ -70,7 +70,7 @@ describe Lexer do
       lexer = Lexer.new "1" 
       tokens = lexer.tokenize 
       expect(tokens.length).to eql(1) 
-      expect(tokens[0].type).to eql(:number)
+      expect(tokens[0].type).to eql(:integer)
       expect(tokens[0].value).to eql(1)
     end
   end 
