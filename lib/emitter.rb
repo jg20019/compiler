@@ -1,11 +1,20 @@
 
 class Emitter
-  def self.emit(str) 
-    print "\t#{str}" 
+  attr_reader :lines 
+
+  def initialize
+    @lines = [] 
   end
 
-  def self.emitLn(str)
-    self.emit(str)
-    puts
+  def emit(str) 
+    "\t#{str}" 
+  end
+
+  def emitLn(str)
+    @lines << "#{self.emit(str)}"
+  end
+
+  def to_s 
+    @lines.join('\n') 
   end
 end
