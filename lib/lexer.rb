@@ -1,6 +1,6 @@
 require './lib/errors.rb'
+require './lib/token.rb' 
 
-Token = Struct.new(:type, :value) 
 
 class Lexer
   def initialize(source) 
