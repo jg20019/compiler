@@ -47,14 +47,14 @@ class Parser
   end
 
   def parse_add(exprNode)
-    addOp = AddOpNode.new(:plus)
     consume(:plus) 
+    addOp = AddOpNode.new(:plus)
     exprNode.addopTerms << addOp << parse_term
   end
 
   def parse_subtract(exprNode)
-    addOp = AddOpNode.new(:minus)
     consume(:minus) 
+    addOp = AddOpNode.new(:minus)
     exprNode.addopTerms << addOp << parse_term
   end
 
