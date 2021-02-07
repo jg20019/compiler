@@ -11,7 +11,8 @@ class Lexer
   def tokenize
     tokens = []
     until atEnd? 
-      tokens << get_token
+      consumeWhitespace
+      tokens << getToken
     end
     tokens 
   end
@@ -20,7 +21,7 @@ class Lexer
     @index >= @source.length
   end
 
-  def get_token
+  def getToken
     if digit?(look) 
       getNum
     elsif look == '+' 
@@ -29,6 +30,12 @@ class Lexer
     elsif look == '-'
       match('-') 
       Token.new(:minus, '-')
+    elsif look == '*'
+      match('*') 
+      Token.new(:star, '*') 
+    elsif look == '/'
+      match('/')
+      Token.new(:slash, '/')
     else
       Error.abort("Unexpected character '#{look}'") 
     end
@@ -60,6 +67,10 @@ class Lexer
     /\A[0-9]$/.match? ch
   end
 
+  def whitespace?(ch)
+    /\A\s$/.match? ch
+  end
+
   def getName
     Error.expected('Name') unless alpha?(look) 
     token = Token.new(:name, look.upcase) 
@@ -73,4 +84,9 @@ class Lexer
     getChar
     token
   end
+
+  def consumeWhitespace
+    @index += 1 while whitespace?(look) 
+  end
 end
+

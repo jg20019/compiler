@@ -67,26 +67,43 @@ describe Lexer do
 
   describe "#getToken" do
     it "can recogize a plus sign" do
-      lexer = Lexer.new "+" 
-      tokens = lexer.tokenize
-      expect(tokens.length).to eql(1) 
-      expect(tokens[0].type).to eql(:plus)  
+      token = Lexer.new("+").getToken
+      expect(token.type).to eql(:plus)  
     end
 
     it "can recognize a minus sign" do
-      lexer = Lexer.new "-"
-      tokens = lexer.tokenize
-      expect(tokens.length).to eql(1)
-      expect(tokens[0].type).to eql(:minus) 
+      token = Lexer.new("-").getToken
+      expect(token.type).to eql(:minus) 
+    end
+
+    it "recognizes stars" do 
+      token = Lexer.new("*").getToken
+      expect(token.type).to eql(:star) 
+    end
+
+    it "recognizes stars" do 
+      token = Lexer.new("/").getToken
+      expect(token.type).to eql(:slash) 
     end
   end
+
   describe "#tokenize" do 
     it "can tokenize a single integer" do 
-      lexer = Lexer.new "1" 
-      tokens = lexer.tokenize 
-      expect(tokens.length).to eql(1) 
-      expect(tokens[0].type).to eql(:integer)
-      expect(tokens[0].value).to eql(1)
+      tokens = Lexer.new("1").tokenize
+      expected_tokens = [
+        Token.new(:integer, 1) 
+      ] 
+      expect(tokens).to eql(expected_tokens) 
+    end
+
+    it "ignores whitespace" do 
+      tokens = Lexer.new(" 1 +   3").tokenize
+      expected_tokens = [
+        Token.new(:integer, 1), 
+        Token.new(:plus, '+'), 
+        Token.new(:integer, 3) 
+      ] 
+      expect(tokens).to eql(expected_tokens) 
     end
   end 
 end
