@@ -28,6 +28,11 @@ class Parser
     parse_addop_terms exprNode
   end
 
+  def parse_term 
+    termNode = TermNode.new(parse_factor, [])
+    parse_mulop_factors termNode
+  end
+
   def parse_addop_terms(exprNode) 
     while !atEnd? && addOp?(peek) 
       case peek.type
@@ -42,8 +47,13 @@ class Parser
     exprNode
   end
 
-  def parse_term
-    TermNode.new(consume(:integer).value) 
+  def parse_factor
+    FactorNode.new(consume(:integer).value) 
+  end
+
+  def parse_mulop_factors(factorNode) 
+    # for testing there are not factors for now
+    factorNode
   end
 
   def parse_add(exprNode)
@@ -66,3 +76,5 @@ class Parser
     end 
   end
 end
+
+puts Parser.new([Token.new(:integer, 1)]).parse

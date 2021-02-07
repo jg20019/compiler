@@ -3,10 +3,18 @@ require './lib/parser.rb'
 
 describe Parser do 
   describe "#parse" do 
-    it "recognizes single number expressions" do 
+    it "parses single number expressions" do 
       tokens = [Token.new(:integer, 1)]
       tree = Parser.new(tokens).parse
-      expect(tree.term).to eql(TermNode.new(1))
+      expected_tree = 
+        ExprNode.new(
+          TermNode.new(
+            FactorNode.new(1), []
+          ), 
+          []
+        )
+       
+      expect(tree).to eql(expected_tree)
     end
 
     it "recognizes expressions like '1+1' and '2-1'" do
@@ -16,16 +24,23 @@ describe Parser do
         Token.new(:integer, 2)
       ]
 
-      tree = Parser.new(tokens).parse
-      expect(tree.class).to eql(ExprNode) 
-      expect(tree.term.class).to eql(TermNode)
-      expect(tree.term.value).to eql(1)
+      expected_tree = 
+        ExprNode.new(
+          TermNode.new(
+            FactorNode.new(1), 
+            []
+          ),
+          [
+            AddOpNode.new(:minus),
+            TermNode.new(
+              FactorNode.new(2), 
+              []
+            )
+          ]
+        )
 
-      op, term = tree.addopTerms
-      expect(op.class).to eql(AddOpNode)
-      expect(op.type).to eql(:minus)
-      expect(term.class).to eql(TermNode) 
-      expect(term.value).to eql(2)
+      tree = Parser.new(tokens).parse
+      expect(tree).to eql(expected_tree) 
 
       tokens = [
         Token.new(:integer, 1), 
@@ -34,15 +49,20 @@ describe Parser do
       ]
 
       tree = Parser.new(tokens).parse
-      expect(tree.class).to eql(ExprNode) 
-      expect(tree.term.class).to eql(TermNode)
-      expect(tree.term.value).to eql(1)
+      expected_tree = 
+        ExprNode.new(
+          TermNode.new(
+            FactorNode.new(1), []
+          ), 
+          [
+            AddOpNode.new(:plus), 
+            TermNode.new(
+              FactorNode.new(2), [] 
+            )
+          ]
+        )
 
-      op, term = tree.addopTerms
-      expect(op.class).to eql(AddOpNode)
-      expect(op.type).to eql(:plus)
-      expect(term.class).to eql(TermNode) 
-      expect(term.value).to eql(2)
+      expect(tree).to eql(expected_tree) 
     end
 
     it "parses expressions like '5+3-1'" do 
@@ -54,23 +74,20 @@ describe Parser do
         Token.new(:integer, 1) 
       ] 
 
+      expected_tree = ExprNode.new(
+        TermNode.new(
+          FactorNode.new(5), []
+        ),
+        [ AddOpNode.new(:plus), 
+          TermNode.new(
+            FactorNode.new(3), []), 
+          AddOpNode.new(:minus), 
+          TermNode.new(
+            FactorNode.new(1), [])
+        ] 
+      )
       tree = Parser.new(tokens).parse
-      expect(tree.class).to eql(ExprNode) 
-      expect(tree.term.class).to eql(TermNode) 
-      expect(tree.term.value).to eql(5) 
-
-      addopTerms = tree.addopTerms
-      expect(addopTerms[0].class).to eql(AddOpNode) 
-      expect(addopTerms[0].type).to eql(:plus) 
-
-      expect(addopTerms[1].class).to eql(TermNode) 
-      expect(addopTerms[1].value).to eql(3) 
-
-      expect(addopTerms[2].class).to eql(AddOpNode) 
-      expect(addopTerms[2].type).to eql(:minus) 
-
-      expect(addopTerms[3].class).to eql(TermNode) 
-      expect(addopTerms[3].value).to eql(1) 
+      expect(tree).to eql(expected_tree) 
     end
   end
 end
