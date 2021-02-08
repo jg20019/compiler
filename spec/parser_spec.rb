@@ -110,5 +110,31 @@ describe Parser do
       tree = Parser.new(tokens).parse
       expect(tree).to eql(expected) 
     end
+
+    it "parses expressions with mixed precedence" do 
+      tokens = [
+        Token.new(:integer, 5), 
+        Token.new(:star, '*'), 
+        Token.new(:integer, 4), 
+        Token.new(:plus, '+'), 
+        Token.new(:integer, 3), 
+      ] 
+
+      expected = ExprNode.new(
+        TermNode.new(
+          FactorNode.new(5), 
+          [ MulOpNode.new(:star), 
+            FactorNode.new(4)
+          ]), 
+        [ AddOpNode.new(:plus), 
+          TermNode.new(
+            FactorNode.new(3), 
+            [])
+        ]) 
+
+      tree = Parser.new(tokens).parse
+      expect(tree).to eql(expected) 
+    end
+
   end
 end
