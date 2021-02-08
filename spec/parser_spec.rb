@@ -3,6 +3,14 @@ require './lib/parser.rb'
 
 describe Parser do 
   describe "#parse" do 
+    it "raises error when parsing no tokens" do 
+      expect { Parser.new([]).parse }.to raise_error(RuntimeError) 
+    end
+
+    it "raises RuntimeError when first part of expression is not an integer" do
+      expect { Parser.new([Token.new(:plus, '+')]).parse }.to raise_error(RuntimeError) 
+    end
+
     it "parses single number expressions" do 
       tokens = [Token.new(:integer, 1)]
       tree = Parser.new(tokens).parse

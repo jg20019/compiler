@@ -94,12 +94,12 @@ class Parser
   end
 
   def consume(expected_type) 
+    Error.expected "#{expected_type.inspect}" if @tokens.empty?  
+
     if @tokens[0].type == expected_type
       @tokens.shift
     else
-      Errors.expected(expected_type) 
+      Error.expected(expected_type) 
     end 
   end
 end
-
-puts Parser.new([Token.new(:integer, 1)]).parse
