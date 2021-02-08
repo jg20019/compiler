@@ -89,17 +89,3 @@ class CodeGenerator
     @iostream.puts("\t#{str}")
   end
 end
-
-
-tree = 
-  ExprNode.new(
-    TermNode.new(
-      FactorNode.new(4), [
-        MulOpNode.new(:star), 
-        FactorNode.new(5)
-      ]
-    ), 
-    []
-  )
-
-CodeGenerator.new().generate(tree) 
