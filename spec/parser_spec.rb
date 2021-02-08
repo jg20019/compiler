@@ -89,5 +89,26 @@ describe Parser do
       tree = Parser.new(tokens).parse
       expect(tree).to eql(expected_tree) 
     end
+
+    it "parses expressions with multiplication and division" do
+      tokens = [
+        Token.new(:integer, 5), 
+        Token.new(:star, '*'), 
+        Token.new(:integer, 4)  
+      ] 
+
+      expected = ExprNode.new(
+        TermNode.new(
+          FactorNode.new(5), 
+          [ MulOpNode.new(:star), 
+            FactorNode.new(4)
+          ]
+        ),
+        []
+      ) 
+
+      tree = Parser.new(tokens).parse
+      expect(tree).to eql(expected) 
+    end
   end
 end

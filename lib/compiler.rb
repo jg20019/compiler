@@ -10,10 +10,10 @@ class Compiler
   def compile 
     tokens = Lexer.new(@source).tokenize
     tree = Parser.new(tokens).parse
-    code_generator = CodeGenerator.new() 
-    code_generator.generate(tree) 
+    #code_generator = CodeGenerator.new() 
+    #code_generator.generate(tree) 
   end
 end
 
-compiler = Compiler.new("5-2+1") 
-compiler.compile
+compiler = Compiler.new("5*2+1") 
+puts compiler.compile
