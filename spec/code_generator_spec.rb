@@ -118,5 +118,56 @@ describe CodeGenerator do
       generator.generate(tree)
       expect(iostream.lines).to eql(expected_output) 
     end 
+
+    it "generates code for multiplaction" do 
+      tree = 
+        ExprNode.new(
+          TermNode.new(
+            FactorNode.new(4), [
+              MulOpNode.new(:star), 
+              FactorNode.new(5)
+            ]
+          ), 
+          []
+        )
+
+      expected_output = [
+        "\tMOVE #4, D0", 
+        "\tMOVE D0, -(SP)",
+        "\tMOVE #5, D0",
+        "\tMULS (SP)+, D0",
+      ] 
+
+      iostream = MockIOStream.new
+      generator = CodeGenerator.new(iostream)
+      generator.generate(tree) 
+      expect(iostream.lines).to eql(expected_output)
+    end
+
+    it "generates code for division" do 
+      tree = 
+        ExprNode.new(
+          TermNode.new(
+            FactorNode.new(10), [
+              MulOpNode.new(:slash), 
+              FactorNode.new(2)
+            ]
+          ), 
+          []
+        )
+
+      expected_output = [
+        "\tMOVE #10, D0", 
+        "\tMOVE D0, -(SP)",
+        "\tMOVE #2, D0",
+        "\tMOVE (SP)+, D1", 
+        "\tDIVS D1, D0",
+      ] 
+
+      iostream = MockIOStream.new
+      generator = CodeGenerator.new(iostream)
+      generator.generate(tree) 
+      expect(iostream.lines).to eql(expected_output)
+    end
   end
 end
