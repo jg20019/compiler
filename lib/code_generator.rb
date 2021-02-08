@@ -22,17 +22,44 @@ class CodeGenerator
     generate(exprNode.term) 
     until exprNode.addopTerms.empty? 
       addop, term = exprNode.addopTerms.shift(2)
-      emitLn "MOVE D0, D1" 
+      emitLn "MOVE D0, -(SP)" 
       generateAddOp addop, term 
     end
   end
 
   def generateTerm(termNode) 
     generateFactor(termNode.factor) 
+    until termNode.mulopFactors.empty? 
+      mulop, factor = termNode.mulopFactors.shift(2) 
+      emitLn "MOVE D0, -(SP)" 
+      generateMulOp mulop, factor 
+    end
   end
 
   def generateFactor(factorNode) 
     emitLn "MOVE ##{factorNode.value}, D0" 
+  end
+
+  def generateMulOp(mulOp, factor) 
+    case mulOp.type
+    when :star 
+      generateMultiply factor
+    when :slash 
+      generateDivide factor
+    else 
+      Error.expected "Mulop" 
+    end 
+  end
+
+  def generateMultiply(factor) 
+    generate(factor) 
+    emitLn "MULS (SP)+, D0" 
+  end
+
+  def generateDivide(factor) 
+    generate(factor) 
+    emitLn "MOVE (SP)+, D1" 
+    emitLn "DIVS D1, D0" 
   end
 
   def generateAddOp(addOp, operand)  
@@ -48,12 +75,12 @@ class CodeGenerator
 
   def generateAdd(operand) 
     generate(operand) 
-    emitLn 'ADD D1, D0'
+    emitLn 'ADD (SP)+, D0'
   end
 
   def generateSubtract(operand)
     generate(operand)
-    emitLn 'SUB D1, D0'
+    emitLn 'SUB (SP)+, D0'
     emitLn 'NEG D0'
   end
 

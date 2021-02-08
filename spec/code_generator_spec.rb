@@ -50,9 +50,9 @@ describe CodeGenerator do
 
       expected_output = [
         "\tMOVE #1, D0", 
-        "\tMOVE D0, D1", 
+        "\tMOVE D0, -(SP)", 
         "\tMOVE #1, D0", 
-        "\tADD D1, D0"
+        "\tADD (SP)+, D0"
       ]
 
       iostream = MockIOStream.new
@@ -77,9 +77,9 @@ describe CodeGenerator do
 
       expected_output = [
         "\tMOVE #2, D0", 
-        "\tMOVE D0, D1", 
+        "\tMOVE D0, -(SP)", 
         "\tMOVE #1, D0", 
-        "\tSUB D1, D0", 
+        "\tSUB (SP)+, D0", 
         "\tNEG D0"
       ] 
 
@@ -104,12 +104,12 @@ describe CodeGenerator do
       )
       expected_output = [
         "\tMOVE #5, D0", 
-        "\tMOVE D0, D1", 
+        "\tMOVE D0, -(SP)", 
         "\tMOVE #3, D0", 
-        "\tADD D1, D0", 
-        "\tMOVE D0, D1", 
+        "\tADD (SP)+, D0", 
+        "\tMOVE D0, -(SP)", 
         "\tMOVE #1, D0", 
-        "\tSUB D1, D0", 
+        "\tSUB (SP)+, D0", 
         "\tNEG D0" 
       ] 
 
