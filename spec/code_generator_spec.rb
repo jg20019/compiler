@@ -16,7 +16,14 @@ end
 describe CodeGenerator do 
   describe "#generate" do 
     it "generates code for a single number expression" do 
-      tree = ExprNode.new(TermNode.new(1), []) 
+      tree = 
+        ExprNode.new(
+          TermNode.new(
+            FactorNode.new(1), []
+          ), 
+          []
+        )
+
       iostream = MockIOStream.new
       generator = CodeGenerator.new(iostream) 
       generator.generate(tree)
@@ -26,13 +33,21 @@ describe CodeGenerator do
 
   describe "#generate" do 
     it "generates code for expressions like '1+1'" do 
-      tree = ExprNode.new(
-        TermNode.new(1), 
-        [ AddOpNode.new(:plus), 
-          TermNode.new(1)   
-        ] 
-      ) 
-    
+      tree = 
+        ExprNode.new(
+          TermNode.new(
+            FactorNode.new(1), 
+            []
+          ),
+          [
+            AddOpNode.new(:plus),
+            TermNode.new(
+              FactorNode.new(1), 
+              []
+            )
+          ]
+        )
+
       expected_output = [
         "\tMOVE #1, D0", 
         "\tMOVE D0, D1", 
@@ -47,12 +62,18 @@ describe CodeGenerator do
     end
 
     it "generates code for expressions like '2-1'" do 
-      tree = ExprNode.new(
-        TermNode.new(2), 
-        [ AddOpNode.new(:minus), 
-          TermNode.new(1)
-        ] 
-      ) 
+      tree = 
+        ExprNode.new(
+          TermNode.new(
+            FactorNode.new(2), []
+          ), 
+          [
+            AddOpNode.new(:minus), 
+            TermNode.new(
+              FactorNode.new(1), [] 
+            )
+          ]
+        )
 
       expected_output = [
         "\tMOVE #2, D0", 
@@ -70,14 +91,17 @@ describe CodeGenerator do
 
     it "generates code for expressions like '5+3-1'" do 
       tree = ExprNode.new(
-        TermNode.new(5), 
+        TermNode.new(
+          FactorNode.new(5), []
+        ),
         [ AddOpNode.new(:plus), 
-          TermNode.new(3), 
+          TermNode.new(
+            FactorNode.new(3), []), 
           AddOpNode.new(:minus), 
-          TermNode.new(1)  
+          TermNode.new(
+            FactorNode.new(1), [])
         ] 
       )
-
       expected_output = [
         "\tMOVE #5, D0", 
         "\tMOVE D0, D1", 
