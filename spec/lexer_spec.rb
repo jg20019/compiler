@@ -85,6 +85,16 @@ describe Lexer do
       token = Lexer.new("/").getToken
       expect(token.type).to eql(:slash) 
     end
+
+    it "recognizes left parens" do 
+      token = Lexer.new("(").getToken
+      expect(token.type).to eql(:lparen) 
+    end
+
+    it "recognizes right parens" do 
+      token = Lexer.new(")").getToken
+      expect(token.type).to eql(:rparen) 
+    end
   end
 
   describe "#tokenize" do 

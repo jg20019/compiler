@@ -25,17 +25,23 @@ class Lexer
     if digit?(look) 
       getNum
     elsif look == '+' 
-      match('+') 
+      match '+' 
       Token.new(:plus, '+') 
     elsif look == '-'
-      match('-') 
+      match '-' 
       Token.new(:minus, '-')
     elsif look == '*'
-      match('*') 
+      match '*' 
       Token.new(:star, '*') 
     elsif look == '/'
-      match('/')
+      match '/'
       Token.new(:slash, '/')
+    elsif look == '(' 
+      match '('
+      Token.new(:lparen, '(') 
+    elsif look == ')'
+      match ')' 
+      Token.new(:rparen, ')')
     else
       Error.abort("Unexpected character '#{look}'") 
     end
