@@ -28,69 +28,85 @@ class Parser
   end
 
   def parse_expr
-    exprNode = ExprNode.new(parse_term, [])
-    parse_addop_terms exprNode
+    term = parse_term
+    addition_operation_terms = parse_addop_terms # returns a list
+    if addition_operation_terms.empty?
+      {expr: term} 
+    else
+      {expr: [term].concat(addition_operation_terms)} 
+    end
   end
 
   def parse_term 
-    termNode = TermNode.new(parse_factor, [])
-    parse_mulop_factors termNode
+    factor = parse_factor
+    multiplication_operation_factors = parse_mulop_factors 
+    if multiplication_operation_factors.empty? 
+      {term: factor} 
+    else
+      {term: [factor].concat(multiplication_operation_factors)}
+    end
   end
 
-  def parse_addop_terms(exprNode) 
+  def parse_addop_terms() 
+    addition_operation_terms = [] 
     while !atEnd? && addOp?(peek) 
       case peek.type
       when :plus 
-        parse_add exprNode
+        addition_operation_terms.concat parse_add
       when :minus 
-        parse_subtract exprNode
+        addition_operation_terms.concat parse_subtract 
       else 
         Error.expected('Addop') 
       end 
     end
-    exprNode
+    addition_operation_terms 
   end
 
   def parse_factor
-    FactorNode.new(consume(:integer).value) 
+    Error.expected('factor') if @tokens.empty? 
+    if peek.type == :lparen
+      consume(:lparen)
+      factor = {factor: parse_expr}
+      consume(:rparen)
+    else
+      factor = {factor: consume(:integer).value} 
+    end
+    factor
   end
 
-  def parse_mulop_factors(termNode) 
+  def parse_mulop_factors() 
+    multiplication_operation_factors = []
     while !atEnd? && mulOp?(peek) 
       case peek.type
       when :star 
-        parse_multiply termNode
+        multiplication_operation_factors.concat(parse_multiply)  
       when :slash
-        parse_divide termNode
+        multiplication_operation_factors.concat(parse_divide)
       else
         Error.expected 'Mulop' 
       end
     end
-    termNode
+    multiplication_operation_factors 
   end
 
-  def parse_add(exprNode)
+  def parse_add()
     consume(:plus) 
-    addOp = AddOpNode.new(:plus)
-    exprNode.addopTerms << addOp << parse_term
+    [{operation: :addition}, parse_term] 
   end
 
-  def parse_subtract(exprNode)
+  def parse_subtract()
     consume(:minus) 
-    addOp = AddOpNode.new(:minus)
-    exprNode.addopTerms << addOp << parse_term
+    [{operation: :subtraction}, parse_term]
   end
 
-  def parse_multiply(termNode) 
+  def parse_multiply() 
     consume(:star)
-    mulOp = MulOpNode.new(:star) 
-    termNode.mulopFactors << mulOp << parse_factor
+    [{operation: :multiplication}, parse_factor]
   end
 
-  def parse_divide(termNode) 
+  def parse_divide() 
     consume(:slash)
-    mulOp = MulOpNode.new(:slash) 
-    termNode.mulopFactors << mulOp << parse_factor
+    [{operation: :division}, parse_factor]
   end
 
   def consume(expected_type) 
@@ -103,3 +119,11 @@ class Parser
     end 
   end
 end
+
+tokens = [
+  Token.new(:integer, 1), 
+  Token.new(:plus, '+'), 
+  Token.new(:integer, 2)
+]
+
+puts Parser.new(tokens).parse 

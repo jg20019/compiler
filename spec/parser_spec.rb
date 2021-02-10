@@ -15,65 +15,44 @@ describe Parser do
       tokens = [Token.new(:integer, 1)]
       tree = Parser.new(tokens).parse
       expected_tree = 
-        ExprNode.new(
-          TermNode.new(
-            FactorNode.new(1), []
-          ), 
-          []
-        )
-       
+        {expr: {term: {factor: 1}}}
+
       expect(tree).to eql(expected_tree)
     end
 
-    it "recognizes expressions like '1+1' and '2-1'" do
+    it "parses simple addition" do 
       tokens = [
-        Token.new(:integer, 1), 
-        Token.new(:minus, '-'), 
-        Token.new(:integer, 2)
-      ]
-
-      expected_tree = 
-        ExprNode.new(
-          TermNode.new(
-            FactorNode.new(1), 
-            []
-          ),
-          [
-            AddOpNode.new(:minus),
-            TermNode.new(
-              FactorNode.new(2), 
-              []
-            )
-          ]
-        )
-
-      tree = Parser.new(tokens).parse
-      expect(tree).to eql(expected_tree) 
-
-      tokens = [
-        Token.new(:integer, 1), 
+        Token.new(:integer, 5), 
         Token.new(:plus, '+'), 
         Token.new(:integer, 2)
       ]
 
-      tree = Parser.new(tokens).parse
-      expected_tree = 
-        ExprNode.new(
-          TermNode.new(
-            FactorNode.new(1), []
-          ), 
-          [
-            AddOpNode.new(:plus), 
-            TermNode.new(
-              FactorNode.new(2), [] 
-            )
-          ]
-        )
-
-      expect(tree).to eql(expected_tree) 
+      expected = 
+        {expr: 
+         [{term: {factor: 5}}, 
+          {operation: :addition}, 
+          {term: {factor: 2}}]}
+  
+      expect(Parser.new(tokens).parse).to eql(expected) 
     end
 
-    it "parses expressions like '5+3-1'" do 
+    it "parses simple subtraction" do
+      tokens = [
+        Token.new(:integer, 10), 
+        Token.new(:minus, '-'), 
+        Token.new(:integer, 3)
+      ]
+
+      expected = 
+        {expr: 
+         [{term: {factor: 10}},
+          {operation: :subtraction}, 
+          {term: {factor: 3}}]}
+
+      expect(Parser.new(tokens).parse).to eql(expected)
+    end
+
+    it "parses expressions with multiple terms" do 
       tokens = [
         Token.new(:integer, 5), 
         Token.new(:plus, '+'), 
@@ -82,41 +61,50 @@ describe Parser do
         Token.new(:integer, 1) 
       ] 
 
-      expected_tree = ExprNode.new(
-        TermNode.new(
-          FactorNode.new(5), []
-        ),
-        [ AddOpNode.new(:plus), 
-          TermNode.new(
-            FactorNode.new(3), []), 
-          AddOpNode.new(:minus), 
-          TermNode.new(
-            FactorNode.new(1), [])
-        ] 
-      )
-      tree = Parser.new(tokens).parse
-      expect(tree).to eql(expected_tree) 
+      expected = 
+        {expr: 
+         [{term: {factor: 5}},
+          {operation: :addition},
+          {term: {factor: 3}},
+          {operation: :subtraction},
+          {term: {factor: 1}}]}
+
+      expect(Parser.new(tokens).parse).to eql(expected) 
     end
 
-    it "parses expressions with multiplication and division" do
+    it "parses simple multiplication" do
       tokens = [
         Token.new(:integer, 5), 
         Token.new(:star, '*'), 
         Token.new(:integer, 4)  
       ] 
+    
+      expected = 
+        {expr: 
+         {term: 
+          [{factor: 5},
+           {operation: :multiplication},
+           {factor: 4}]}}
+      
+      expect(Parser.new(tokens).parse).to eql(expected)
 
-      expected = ExprNode.new(
-        TermNode.new(
-          FactorNode.new(5), 
-          [ MulOpNode.new(:star), 
-            FactorNode.new(4)
-          ]
-        ),
-        []
-      ) 
+    end
+    it "parses simple division" do
+    
+      tokens = [
+        Token.new(:integer, 77), 
+        Token.new(:slash, '/'), 
+        Token.new(:integer, 11) 
+      ]
 
-      tree = Parser.new(tokens).parse
-      expect(tree).to eql(expected) 
+      expected = 
+        {expr: 
+         {term: 
+          [{factor: 77},
+           {operation: :division},
+           {factor: 11}]}}
+
+      expect(Parser.new(tokens).parse).to eql(expected) 
     end
 
     it "parses expressions with mixed precedence" do 
@@ -128,21 +116,42 @@ describe Parser do
         Token.new(:integer, 3), 
       ] 
 
-      expected = ExprNode.new(
-        TermNode.new(
-          FactorNode.new(5), 
-          [ MulOpNode.new(:star), 
-            FactorNode.new(4)
-          ]), 
-        [ AddOpNode.new(:plus), 
-          TermNode.new(
-            FactorNode.new(3), 
-            [])
-        ]) 
+      expected = 
+        {expr: 
+         [{term: 
+           [{factor: 5},
+            {operation: :multiplication},
+            {factor: 4}]},
+          {operation: :addition},
+          {term: {factor: 3}}]}
 
       tree = Parser.new(tokens).parse
       expect(tree).to eql(expected) 
     end
 
+    it "parses expressions with parentheses" do 
+      tokens = [ 
+        Token.new(:lparen, '('),
+        Token.new(:integer, 3),
+        Token.new(:plus, '+'),
+        Token.new(:integer, 4),
+        Token.new(:rparen, ')'),
+        Token.new(:star, '*'),
+        Token.new(:integer, 5)
+      ] 
+
+      expected = 
+        {expr: 
+         {term: 
+          [{factor: 
+            {expr: 
+             [{term: {factor: 3}}, 
+              {operation: :addition}, 
+              {term: {factor: 4}}]}}, 
+           {operation: :multiplication},
+           {factor: 5}]}}
+
+      expect(Parser.new(tokens).parse).to eql(expected) 
+    end
   end
 end
