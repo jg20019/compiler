@@ -118,11 +118,3 @@ class Parser
     end 
   end
 end
-
-tokens = [
-  Token.new(:integer, 1), 
-  Token.new(:plus, '+'), 
-  Token.new(:integer, 2)
-]
-
-puts Parser.new(tokens).parse 
