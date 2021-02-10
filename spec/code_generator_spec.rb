@@ -137,5 +137,33 @@ describe CodeGenerator do
       generator.generate(tree) 
       expect(iostream.lines).to eql(expected_output)
     end
+
+    it "generates code for expressions with parentheses" do 
+      tree = 
+        {expr: 
+         {term: 
+          [{factor: 
+            {expr: 
+             [{term: {factor: 3}}, 
+              {operation: :addition}, 
+              {term: {factor: 4}}]}}, 
+           {operation: :multiplication},
+           {factor: 5}]}}
+
+      expected_output = [
+        "\tMOVE #3, D0",
+        "\tMOVE D0, -(SP)",
+        "\tMOVE #4, D0",
+        "\tADD (SP)+, D0",
+        "\tMOVE D0, -(SP)",
+        "\tMOVE #5, D0",
+        "\tMULS (SP)+, D0"
+      ]
+ 
+      iostream = MockIOStream.new
+      generator = CodeGenerator.new(iostream)
+      generator.generate(tree)
+      expect(iostream.lines).to eql(expected_output) 
+    end
   end
 end

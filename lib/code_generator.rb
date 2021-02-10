@@ -4,29 +4,18 @@ class CodeGenerator
   end
 
   def expr?(tree)
-    tree.key? :expr
+    tree.class == Hash && tree.key?(:expr)
   end
 
   def term?(tree)
-    tree.key? :term
+    tree.class == Hash && tree.key?(:term)
   end
 
   def factor?(tree)
-    tree.key? :factor
+    tree.class == Hash && tree.key?(:factor)
   end
 
   def generate(tree) 
-    #case tree
-    #when ExprNode 
-    #  generateExpr tree
-    #when TermNode 
-    #  generateTerm tree
-    #when FactorNode
-    #  generateFactor tree
-    #else
-    #  Error.abort "Unexpected node '#{tree.class}'" 
-    #end
-
     if expr? tree
       generateExpr tree
     elsif term? tree
@@ -67,7 +56,11 @@ class CodeGenerator
   end
 
   def generateFactor(tree) 
-    emitLn "MOVE ##{tree[:factor]}, D0" 
+    if expr? tree[:factor]
+      generateExpr(tree[:factor]) 
+    else
+      emitLn "MOVE ##{tree[:factor]}, D0" 
+    end
   end
 
   def generateMultiplicationOperation(operation, factor) 
