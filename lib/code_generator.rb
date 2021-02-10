@@ -1,85 +1,115 @@
-require './lib/node.rb' 
-
 class CodeGenerator
   def initialize(iostream=STDOUT) 
     @iostream = iostream
   end
 
+  def expr?(tree)
+    tree.key? :expr
+  end
+
+  def term?(tree)
+    tree.key? :term
+  end
+
+  def factor?(tree)
+    tree.key? :factor
+  end
+
   def generate(tree) 
-    case tree
-    when ExprNode 
+    #case tree
+    #when ExprNode 
+    #  generateExpr tree
+    #when TermNode 
+    #  generateTerm tree
+    #when FactorNode
+    #  generateFactor tree
+    #else
+    #  Error.abort "Unexpected node '#{tree.class}'" 
+    #end
+
+    if expr? tree
       generateExpr tree
-    when TermNode 
+    elsif term? tree
       generateTerm tree
-    when FactorNode
+    elsif factor? tree
       generateFactor tree
-    else
-      Error.abort "Unexpected node '#{tree.class}'" 
+    else 
+      Error.abort "Unexpected tree '#{tree}'" 
     end
   end
 
-  def generateExpr(exprNode) 
-    generateTerm(exprNode.term) 
-    until exprNode.addopTerms.empty? 
-      addop, term = exprNode.addopTerms.shift(2)
-      emitLn "MOVE D0, -(SP)" 
-      generateAddOp addop, term 
+  def generateExpr(tree) 
+    if tree[:expr].class == Array
+       generateTerm tree[:expr].first
+       addition_operation_terms = tree[:expr].drop 1 
+       until addition_operation_terms.empty? 
+         operation, term = addition_operation_terms.shift 2
+         emitLn "MOVE D0, -(SP)" 
+         generateAdditionOperation operation[:operation], term
+       end
+    else 
+      generateTerm(tree[:expr])
     end
   end
 
-  def generateTerm(termNode) 
-    generateFactor(termNode.factor) 
-    until termNode.mulopFactors.empty? 
-      mulopNode, factorNode = termNode.mulopFactors.shift(2) 
-      emitLn "MOVE D0, -(SP)" 
-      generateMulOp mulopNode, factorNode
+  def generateTerm(tree) 
+    if tree[:term].class == Array
+      generateFactor tree[:term].first 
+      multiplication_operation_factors = tree[:term].drop 1
+      until multiplication_operation_factors.empty? 
+        operation, factor = multiplication_operation_factors.shift(2) 
+        emitLn "MOVE D0, -(SP)" 
+        generateMultiplicationOperation operation[:operation], factor
+      end
+    else 
+      generateFactor tree[:term] 
     end
   end
 
-  def generateFactor(factorNode) 
-    emitLn "MOVE ##{factorNode.value}, D0" 
+  def generateFactor(tree) 
+    emitLn "MOVE ##{tree[:factor]}, D0" 
   end
 
-  def generateMulOp(mulOpNode, factorNode) 
-    case mulOpNode.type
-    when :star 
-      generateMultiply factorNode
-    when :slash 
-      generateDivide factorNode
+  def generateMultiplicationOperation(operation, factor) 
+    case operation
+    when :multiplication 
+      generateMultiply factor
+    when :division 
+      generateDivide factor
     else 
       Error.expected "Mulop" 
     end 
   end
 
-  def generateMultiply(factorNode) 
-    generateFactor(factorNode) 
+  def generateMultiply(factor) 
+    generateFactor(factor) 
     emitLn "MULS (SP)+, D0" 
   end
 
-  def generateDivide(factorNode) 
-    generateFactor(factorNode) 
+  def generateDivide(factor) 
+    generateFactor(factor) 
     emitLn "MOVE (SP)+, D1" 
     emitLn "DIVS D1, D0" 
   end
 
-  def generateAddOp(addOpNode, termNode)  
-    case addOpNode.type
-    when :plus
-      generateAdd termNode
-    when :minus
-      generateSubtract termNode
+  def generateAdditionOperation(operation, term)  
+    case operation
+    when :addition
+      generateAdd term
+    when :subtraction
+      generateSubtract term
     else 
       Error.expected "Addop" 
     end
   end
 
-  def generateAdd(termNode) 
-    generate(termNode) 
+  def generateAdd(term) 
+    generateTerm(term) 
     emitLn 'ADD (SP)+, D0'
   end
 
-  def generateSubtract(termNode)
-    generate(termNode)
+  def generateSubtract(term)
+    generateTerm(term)
     emitLn 'SUB (SP)+, D0'
     emitLn 'NEG D0'
   end
