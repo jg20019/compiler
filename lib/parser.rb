@@ -1,5 +1,4 @@
 require './lib/errors.rb' 
-require './lib/node.rb' 
 require './lib/token.rb'
 
 class Parser
