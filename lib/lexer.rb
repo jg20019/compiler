@@ -29,7 +29,12 @@ class Lexer
       Token.new(:plus, '+') 
     elsif look == '-'
       match '-' 
-      Token.new(:minus, '-')
+      if digit? look 
+        numToken = getNum
+        Token.new(:integer, -numToken.value)
+      else
+        Token.new(:minus, '-')
+      end
     elsif look == '*'
       match '*' 
       Token.new(:star, '*') 
@@ -47,8 +52,8 @@ class Lexer
     end
   end
 
-  def look
-    @source[@index]
+  def look(lookahead=0)
+    @source[@index+lookahead]
   end
 
   def getChar

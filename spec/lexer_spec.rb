@@ -63,6 +63,14 @@ describe Lexer do
       lexer = Lexer.new "a+1" 
       expect { lexer.getNum }.to raise_error(RuntimeError) 
     end
+
+    it "recognizes negative numbers" do 
+      tokens = Lexer.new("-1").tokenize
+      expected = [
+        Token.new(:integer, -1) 
+      ]
+      expect(tokens).to eql(expected) 
+    end
   end 
 
   describe "#getToken" do
